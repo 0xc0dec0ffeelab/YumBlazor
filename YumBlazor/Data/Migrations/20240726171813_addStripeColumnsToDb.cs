@@ -13,13 +13,13 @@ namespace YumBlazor.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "PaymentIntentId",
                 table: "OrderHeader",
-                type: "nvarchar(max)",
+                type: "text",
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "SessionId",
                 table: "OrderHeader",
-                type: "nvarchar(max)",
+                type: "text",
                 nullable: true);
         }
 
