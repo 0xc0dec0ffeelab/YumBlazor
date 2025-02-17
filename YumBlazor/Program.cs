@@ -12,6 +12,10 @@ using YumBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents();
@@ -35,24 +39,24 @@ builder.Services.AddAuthentication(options =>
 
     .AddFacebook(options =>
     {
-        options.AppId = "1160092848406864";
-        options.AppSecret = "a5313a1337e6d9f137b37ed2a4f7cc45";
+        options.AppId = builder.Configuration.GetSection("FacebookAppId").Value!;
+        options.AppSecret = builder.Configuration.GetSection("FacebookAppSecret").Value!;
     })
 	.AddMicrosoftAccount(options =>
 	{
-		options.ClientId = "0b170a00-4d7f-4eaf-8235-523dddedfec7";
-		options.ClientSecret = "2Na8Q~y8yNpt9iB0kZTyJj22fojeyzsrCbQPma0D";
+		options.ClientId = builder.Configuration.GetSection("MicrosoftAppId").Value!;
+		options.ClientSecret = builder.Configuration.GetSection("MicrosoftAppSecret").Value!;
 	})
 	.AddGoogle(options =>
     {
-        options.ClientId = "602908572279-8dcb674plmqg25evmb0c20fo2naru06u.apps.googleusercontent.com";
-        options.ClientSecret = "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";
+        options.ClientId = builder.Configuration.GetSection("GoogleAppId").Value!;
+        options.ClientSecret = builder.Configuration.GetSection("GoogleAppSecret").Value!;
     })
 .AddIdentityCookies();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-	options.UseSqlServer(connectionString),ServiceLifetime.Transient);
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//	options.UseSqlServer(connectionString),ServiceLifetime.Transient);
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)

@@ -6,23 +6,25 @@ namespace YumBlazor.Repository
 {
 	public class ProductRepository : IProductRepository
 	{
-		private readonly ApplicationDbContext _db;
 		private readonly IWebHostEnvironment _webHostEnvironment;
-        public ProductRepository(ApplicationDbContext db,IWebHostEnvironment webHostEnvironment)
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        public ProductRepository(IDbContextFactory<ApplicationDbContext> contextFactory, IWebHostEnvironment webHostEnvironment)
         {
-            _db = db;
+            _contextFactory = contextFactory;
             _webHostEnvironment = webHostEnvironment;
         }
         public async Task<Product> CreateAsync(Product obj)
 		{
-			await _db.Product.AddAsync(obj);
+            await using var _db = _contextFactory.CreateDbContext();
+            await _db.Product.AddAsync(obj);
 			await _db.SaveChangesAsync();
 			return obj;
 		}
 
 		public async Task<bool> DeleteAsync(int id)
 		{
-			var obj = await _db.Product.FirstOrDefaultAsync(u => u.Id == id);
+            await using var _db = _contextFactory.CreateDbContext();
+            var obj = await _db.Product.FirstOrDefaultAsync(u => u.Id == id);
 			var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, obj.ImageUrl.TrimStart('/'));
 			if (File.Exists(imagePath))
 			{
@@ -38,7 +40,8 @@ namespace YumBlazor.Repository
 
 		public async Task<Product> GetAsync(int id)
 		{
-			var obj = await _db.Product.FirstOrDefaultAsync(u => u.Id == id);
+            await using var _db = _contextFactory.CreateDbContext();
+            var obj = await _db.Product.FirstOrDefaultAsync(u => u.Id == id);
 			if(obj == null)
 			{
 				return new Product();
@@ -48,12 +51,14 @@ namespace YumBlazor.Repository
 
 		public async Task<IEnumerable<Product>> GetAllAsync()
 		{
-			return await _db.Product.Include(u=>u.Category).ToListAsync();
+            await using var _db = _contextFactory.CreateDbContext();
+            return await _db.Product.Include(u=>u.Category).ToListAsync();
 		}
 
 		public async Task<Product> UpdateAsync(Product obj)
 		{
-			var objFromDb = await _db.Product.FirstOrDefaultAsync(u => u.Id == obj.Id);
+            await using var _db = _contextFactory.CreateDbContext();
+            var objFromDb = await _db.Product.FirstOrDefaultAsync(u => u.Id == obj.Id);
             if (objFromDb is not null)
             {
 				objFromDb.Name = obj.Name;
