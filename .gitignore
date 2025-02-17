@@ -363,5 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 
-./YumBlazor/appsettings.json
-./YumBlazor/appsettings.Development.json
+./YumBlazor/appsettings.*.json
