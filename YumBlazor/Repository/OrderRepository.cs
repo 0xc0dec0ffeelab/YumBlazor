@@ -14,7 +14,7 @@ namespace YumBlazor.Repository
         public async Task<OrderHeader> CreateAsync(OrderHeader orderHeader)
         {
             await using var _db = _contextFactory.CreateDbContext();
-            orderHeader.OrderDate = DateTime.Now;
+            orderHeader.OrderDate = DateTime.Now.ToUniversalTime();
             await _db.OrderHeader.AddAsync(orderHeader);
             await _db.SaveChangesAsync();
             return orderHeader;
